@@ -22,8 +22,16 @@ while ($line = <>) {
 	#strings
 	} elsif ($line =~ /^\s*(\w+)\s*=\s*(\w+)\s*$/) {
 		print "\$$1 = $2;\n";
-	
-	} elsif ($line =~ /^\s*(\w+)\s*=\s*([\d\ \*\+\/-]+)\s*$/) {
+
+	#fancy digit operations parser
+	} elsif ($line =~ /^\s*(\w+)\s*=\s*([\d\ \*\+\/\-]+)\s*$/) {
+		$var = $1;
+		@operations = $line =~ /\s*(\d+|[\*\+\/\-])/g;
+		#print "op is !@operations!\n";
+		print "\$$var = @operations;\n";	
+
+	#unfancy one	
+	} elsif ($line =~ /^\s*(\w+)\s*=\s*([\d\ \*\+\/\-]+)\s*$/) {
 		print "\$$1 = $2;\n";		
 
 
