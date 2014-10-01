@@ -1,0 +1,57 @@
+#!/usr/bin/perl -w
+
+#import sys# <====this line was not converted
+
+
+$number = 0; <v1
+while ($number >= 0 <c1) {
+	
+} <v4
+{1
+    #    sys.stdout.write("> ")# <====this line was not converted
+
+    $number = $int $sys $stdin $readline; <v2
+    if ($number >= 0 <c1) {
+	
+} <v4
+    {3
+    if (#number % 2 == 0# <====this line was not converted
+) {
+	
+} <v4
+    {1
+    print "Even\n"; <p2
+    }2
+    #    else:# <====this line was not converted
+
+    {3
+    print "Even\n"; <p2
+    print "Odd\n"; <p2
+    }4
+    }4
+    }2
+    print "Bye\n"; <p2
+
+    {3
+    #    sys.stdout.write("> ")# <====this line was not converted
+
+    $number = $int $sys $stdin $readline; <v2
+    if ($number >= 0 <c1) {
+	
+} <v4
+    {3
+    if (#number % 2 == 0# <====this line was not converted
+) {
+	
+} <v4
+    {1
+    print "Even\n"; <p2
+    }2
+    #    else:# <====this line was not converted
+
+    {3
+    print "Even\n"; <p2
+    print "Odd\n"; <p2
+    }4
+    }4
+    }4
