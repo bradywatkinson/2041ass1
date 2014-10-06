@@ -11,7 +11,7 @@ foreach $line (<STDIN>)
     
 }
 $i = scalar(@lines) - 1;
-while ($i >= 0)
+while ($i   >= 0)
 {
     print $lines[$i], "\n";
     $i = $i - 1;

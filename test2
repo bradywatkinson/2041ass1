@@ -136,7 +136,7 @@ sub printBlock
 	#single newline <p1
 
 		$final .= " <p0" if $debug or $print;
-		$final .= "printf \"$str\\n\" , ".(join ',',@w).";";
+		$final .= "printf \"$str\\n\" , ".(join '',@w).";";
 		}
 			}
 				$_ = "\$$_";
@@ -144,9 +144,9 @@ sub printBlock
 				$_ = "\$$_";
 			if (/\w+/ and "\$$_" ~~ @vars) {
 		foreach (@w) {
-		@w = split / /, $2;
+		@w = split /\b/, $2;
 		my $str = $1;		
-	} elsif ($line =~ /^\s*print\s+"(.*?)"\s*%\s*(.*)$/) {
+	} elsif ($line =~ /^\s*print\s+"(.*?)"\s*%\s*\(?(.*?)\)?$/) {
 	#print formatted (printf) <p0
 
 	#	print "\n";	
@@ -157,14 +157,46 @@ sub printBlock
 	#general? < p1
 #===printing===
 
+		$final .= " <c1" if $debug or $print;
+		$final .= $3;
+		$final .= "\$" if (grep {/$3/} @vars);
+		$final .= "$1 $2 ";
+		$final .= "\$" if (grep {/$1/} @vars);
+	} elsif ($line =~ /^\s*(\w+)\s*(==|>|<|!=|<=|>=)\s*(\w+)\s*$/) {
+	#unfancy < c1
+
+		push @vars, $2;
+		$final .= " <c1" if $debug or $print;
+		$final .= "$var $2 $3";
+		my $var = $prefix[isArray($line)].$1;
+	} elsif ($line =~ /^\s*(\w+)\s*([\*\+\/\-\%])\s*(\d+)\s*$/) {
+	#unfancy < c1
+
+		
+		$final .= " <c2" if $debug or $print;
+		$final .= "@v $2 @w";
+		}
+			$_ = "\$$_" if "\$$_" ~~ @vars;
+		foreach (@w) {
+		}
+			$_ = "\$$_" if "\$$_" ~~ @vars;
+		foreach (@v) {
+		@w = split /\b/, $3;
+		print "\n@v\n" if $print;
+		@v = split /\b/, $1;
+	} elsif ($line =~ /^\s*(.*)\s*(==|>|<|!=|<=|>=)\s*([^=]*)\s*$/) {
+	#operators before comparison < c2
+		
+#===comparison operators===
+
 		$final .= "|s|" if $debug or $print;
 		$final .= makeLine("",$1) . "\n\t" . makeLine("",$2);
 		$final .= "|s|" if $debug or $print;
 	} elsif ($line =~ /(.*[^\\]);(.*)/) {	
 #===split line up====
 
-		$final .= "else";
-	} elsif ($line =~ /^\s*else:$/) {
+		$final .= "else \{\n$ind".makeLine("",$1)."$ind\n}";
+	} elsif ($line =~ /^\s*else:\s*(.*?)\s*$/) {
 
 #===if and while statements====
 
@@ -173,9 +205,10 @@ sub printBlock
 			$final .= "$1 (". makeLine("",$2).")";
 		} else { 	#multi line if or while statement
 			$final .= " <v4" if $debug or $print;
-			$final .= "$1 (". makeLine("",$2).") \{\n$ind\t".makeLine("",$3)."\n}";
+			$final .= "$1 (". makeLine("",$2).") \{\n$ind\t".makeLine("",$3)."$ind\n}";
 		if ($3) { 	#single line if or while statement
-	} elsif ($line =~ /^\s*(\w+)\s+(.*?)\s*:\s*(.*)$/) {
+		#print "1 is $1, 2 is $2 3 is $3\n";
+	} elsif ($line =~ /^\s*(\w+)\s+(\(?.*\)?)\s*:\s*(.*)$/) {
 	#						|if/while/elif|   |test|		  |do|
 
 #===if and while statements====
@@ -188,31 +221,7 @@ sub printBlock
 	
 #===foreach statements===
 
-		$final .= " <c1" if $debug or $print;
-		$final .= $3;
-		$final .= "\$" if (grep {/$3/} @vars);
-		$final .= "$1 $2 ";
-		$final .= "\$" if (grep {/$1/} @vars);
-	} elsif ($line =~ /^\s*(\w+)\s*(==|>|<|!=|<=|>=)\s*(\w+)\s*$/) {
-	#unfancy < c1
 
-		
-		$final .= " <c2" if $debug or $print;
-		$final .= "@v $2 @w";
-		}
-			push @vars, $& if (/\w+/);
-			s/([a-zA-Z]+)/\$$1/;
-		foreach (@w) {
-		}
-			push @vars, $& if (/\w+/);
-			s/([a-zA-Z]+)/\$$1/;
-		foreach (@v) {
-		@w = split /[^\w\+\-\/\*\%]/, $3;
-		@v = split /[^\w\+\-\/\*\%]/, $1;
-	} elsif ($line =~ /^\s*(.*)\s*(==|>|<|!=|<=|>=)\s*(\w+)\s*$/) {
-	#operators before comparison < c2
-		
-#===comparison operators===
 
 
 	#	push @vars, $2;
@@ -382,13 +391,15 @@ sub makeString
 }
 	return $func;
 	
-	$func .= "<fapp" if $debug or $print;	
+	
 	}	
 		}
+			$func .= "<fapp" if $debug or $print;	
 			$func .= "push \@$var, ".$str.";";
 			$func .= "chomp(".$str.");\n${ind}" if !($2 =~ /\"/);
 			$str = makeString($2);
 		} elsif ("\@$var" ~~ @vars) {
+			$func .= "<fapp" if $debug or $print;	
 			$func .= "\$$var = $var\.\"$2";
 		if ("\$$var" ~~ @vars) {
 		my $var = $1;

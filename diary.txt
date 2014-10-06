@@ -1,0 +1,65 @@
+commit b19082049a76f66c2459d03e95d982ec6d0c0881
+Author: Brady Watkinson <dabradybunch1@hotmail.com>
+Date:   Mon Oct 6 19:04:56 2014 +1100
+
+    coding: finalised subset 4 and generalised variable assignment
+
+commit a828d1d3c45e433375ddca509da642a6033c1c39
+Author: Brady Watkinson <dabradybunch1@hotmail.com>
+Date:   Mon Oct 6 12:53:58 2014 +1100
+
+    coding: added a few more things included functions that act on variables
+
+commit 0575b721c68b5fd6a3592719bb546b64425bf21d
+Author: Brady Watkinson <dabradybunch1@hotmail.com>
+Date:   Wed Oct 1 19:53:47 2014 +1000
+
+    coding: lots of coding today. Finalised the recursor so it actually works. Added function parsing support. Added support for arrays. Changed how variable list is stored to be more reliable. Changed a few basic line parsers to be more robust. Added functions to determine variable context (such as array or scalar)
+
+commit 1938dcaf79c44cf1dc1053e9f460c3781546483c
+Author: Brady Watkinson <dabradybunch1@hotmail.com>
+Date:   Mon Sep 29 14:19:03 2014 +1000
+
+    minor changes
+
+commit b50929dacbaad6161324d8dd578115c57c646d91
+Author: Brady Watkinson <dabradybunch1@hotmail.com>
+Date:   Wed Sep 24 17:48:07 2014 +1000
+
+    coding: big efforts. Added a fancy recursion thing that hopefully will be able to handle multiline blocks such as while, for if, etc. Turn line printing into a function that is called within a main recursive function. Changed line printing to output a string rather than print the line which means it can call itself.
+
+commit 6e643d23cca739b8f8566485f56e9d952ded7e9d
+Author: Brady Watkinson <dabradybunch1@hotmail.com>
+Date:   Wed Sep 24 15:59:08 2014 +1000
+
+    coding: tidied up flags and enabled more flags to be added easier. Added some helpful printing. Fixed up variable and printing parsing. Compeleted test suite 1
+
+commit a14bf97365c42c5d68a6208e4d1d78ac55738626
+Author: Brady Watkinson <dabradybunch1@hotmail.com>
+Date:   Tue Sep 23 17:31:20 2014 +1000
+
+    coding: added debugging and began general printing
+
+commit 2daf9b6e99980584b1a937c4b82f1f70fe0b1eab
+Author: Brady Watkinson <dabradybunch1@hotmail.com>
+Date:   Mon Sep 22 17:20:27 2014 +1000
+
+    coding: added fancy variable assignment with digit operators
+
+commit e5c8aa20246d3915339d73ec3cc24554db6c7207
+Author: Brady Watkinson <dabradybunch1@hotmail.com>
+Date:   Mon Sep 22 16:58:08 2014 +1000
+
+    coding: added variables with operator assignment
+
+commit a055f070aec2a3ad6164637b9aedeb0e85ea6f22
+Author: Brady Watkinson <dabradybunch1@hotmail.com>
+Date:   Mon Sep 22 16:55:49 2014 +1000
+
+    coding: added variables with operators
+
+commit 74870461dc0e0cc93875e5b50d33f4c82000640a
+Author: Brady Watkinson <dabradybunch1@hotmail.com>
+Date:   Mon Sep 22 16:35:47 2014 +1000
+
+    starting point
