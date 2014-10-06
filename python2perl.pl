@@ -2,6 +2,9 @@
 
 my $debug = 0;
 my $print = 0;
+my $showVars = 0;
+my @func1 = ("range","sys.stdout.write","sys.stdin.readline","int","break","len");
+my @func2 = ("append");
 my @files;
 my @vars;
 my @prefix = ('$','@');
@@ -12,12 +15,14 @@ foreach $arg (@ARGV) {			#set flags
 		$debug = 1;
 	} elsif ($arg eq "-p") {
 		$print = 1;
+	} elsif ($arg eq "-v") {
+		$showVars = 1;
 	} else {
 		push @files, $arg; 
 	} 
 }
 
-sub makeFunction
+sub makeFunction1
 {
 	my $func = "";
 	my ($line) = (@_);
@@ -36,14 +41,14 @@ sub makeFunction
 			s/([a-zA-Z]+)/\$$1/;
 			push @vars, $& if (/\w+/);
 		}
-		$func .= "(@ops1..@ops2-1)";
+		$func .= "@ops1..@ops2 - 1";
 		$func .= "<frange" if $debug or $print;
 #===sys.stdout.write====
 	}elsif ($line =~ /sys.stdout.write\("?(.*?)"?\)/) {	
 		$func .= "print \"".$1."\";";
 		$func .= "<fout" if $debug or $print;
 #===sys.stdin.readline====
-	}elsif ($line =~ /sys.stdin.readlines?\(\)/) {	
+	}elsif ($line =~ /sys.stdin(.readlines?\(\))?/) {	
 		$func .= "<STDIN>";
 		$func .= "<fin" if $debug or $print;
 #===int====
@@ -62,8 +67,7 @@ sub makeFunction
 	}elsif ($line =~ /^\s*len\("?(.*?)"?\)/) {
 		$var = "\@".$1;
 		$func .= "scalar\($var\)";
-		$func .= "<flen" if $debug or $print;		
-	
+		$func .= "<flen" if $debug or $print;			
 	
 	
 	
@@ -75,12 +79,35 @@ sub makeFunction
 	return $func;
 }
 
+sub makeFunction2
+{
+	my $func = "";
+	my ($line) = (@_);
+		
+#===append===		
+	if ($line =~ /^\s*(\w+)\.append\("?(.*?)"?\)/) {
+		my $var = $1;
+		if ("\$$var" ~~ @vars) {
+			$func .= "\$$var = $var\.\"$2";
+		} elsif ("\@$var" ~~ @vars) {
+			$func .= "chomp($2);\npush \@$var, $2;";
+		}
+	}	
+	$func .= "<fapp" if $debug or $print;	
+	
+	return $func;
+}
+
+
+
 sub isArray
 {
 	my $isArray = 0;
 	my ($line) = (@_);
 
+	
 	$isArray = 1 if ($line =~ /sys.stdin.readlines\(\)/);
+	
 		
 	return $isArray;
 }
@@ -109,13 +136,24 @@ sub makeLine
 	} elsif ($line =~ /^import/) {	
 		$final .= "";
 
+#===funcion on a variable===
+	} elsif ($line =~ /^\s*(\w+)\.((\w|\.)+)\("?(.*?)"?\)/ and $2 ~~ @func2) {
+		$final .= makeFunction2($line);
 
 #===assigning variables===
 
+	#initialise array <va1
+	} elsif ($line =~ /^\s*(\w+)\s*=\s*\[\]\s*$/) {
+		my $var = "@".$1;
+		$final .= "$var = \(\);";
+		$final .= " <va1" if $debug or $print;
+		#$final .= "\n";
+		push @vars, $var;	
+
 	#variables with functions <v0
-	} elsif ($line =~ /^\s*(\w+)\s*=\s*(.*)\s*$/ and makeFunction($2)) {
+	} elsif ($line =~ /^\s*(\w+)\s*=\s*(.*)\s*$/ and makeFunction1($2)) {
 		my $var = $prefix[isArray($line)].$1;
-		$final .= "$var = ".makeFunction($2).";";
+		$final .= "$var = ".makeFunction1($2).";";
 		$final .= " <v0" if $debug or $print;
 		#$final .= "\n";
 		push @vars, $var;	
@@ -133,7 +171,7 @@ sub makeLine
 	} elsif ($line =~ /^\s*(\w+)\s*=\s*([^=]*)$/) {
 		my $var = $prefix[isArray($line)].$1;
 		push @vars, $var;
-		@v = split /[^\w\+\-\/\*\%]/, $2; 		#split on not word or operation
+		@v = split /[^\w\+\-\/\*\%]/, $2; 		#split on !(word|operation)
 		foreach (@v) {
 			s/([a-zA-Z]+)/\$$1/;
 			push @vars, $& if (/\w+/);
@@ -181,7 +219,7 @@ sub makeLine
 	} elsif ($line =~ /^\s*for\s+(\w+)\s+in\s(.*?)\s*:\s*$/) {
 		$var = $prefix[isArray($line)].$1;
 		push @vars, $var;
-		$final .= "foreach \$$1 ". makeFunction($2);
+		$final .= "foreach \$$1 (". makeFunction1($2) .")";
 		$final .= " <fe1" if $debug or $print;
 
 #===if and while statements====
@@ -215,12 +253,14 @@ sub makeLine
 	#	print " <p1" if $debug;
 	#	print "\n";	
 
-	#printf <p0
+	#print formatted (printf) <p0
 	} elsif ($line =~ /^\s*print\s+"(.*?)"\s*%\s*(.*)$/) {
 		my $str = $1;		
 		@w = split / /, $2;
 		foreach (@w) {
 			if (/\w+/ and "\$$_" ~~ @vars) {
+				$_ = "\$$_";
+			} elsif (/(\w+)\[(.*?)\]/ and "\@$1" ~~ @vars) {
 				$_ = "\$$_";
 			}
 		}
@@ -232,19 +272,23 @@ sub makeLine
 		$final .= "print "."\"\\n\";";
 		$final .= " <p1" if $debug or $print;
 
-	#with quotes < p2
-	} elsif ($line =~ /^\s*print\s*"(.*)"\s*$/) {		
-		$final .= "print \"".$1."\\n\";";
-		$final .= " <p2" if $debug or $print;
+	##with quotes < p2
+	#} elsif ($line =~ /^\s*print\s*"(.*)"\s*$/) {		
+	#	$final .= "print \"".$1."\\n\";";
+	#	$final .= " <p2" if $debug or $print;
 
 	#without quotes <p3
 	} elsif ($line =~ /^\s*print\s*(.*)\s*$/) {		
-		@v = split / /, $1;
+		@v = split /[ ,]/, $1;
+		print join ('|',@v),"test\n";
 		foreach (@v) {
-			if (/\w+/ and "\$$_" ~~ @vars) {
+			if (/\".*?\"/) {
+			} elsif (/\w+/ and "\$$_" ~~ @vars) {
 				$_ = "\$$_";
 			} elsif (/\w+/ and "\@$_" ~~ @vars) {
 				$_ = "\@$_";
+			} elsif (/(\w+)\[(.*?)\]/ and "\@$1" ~~ @vars) {
+				$_ = "\$$1\[$2\]";
 			}
 		}
 		$final .= "print @v, \"\\n\";";
@@ -252,8 +296,8 @@ sub makeLine
 
 
 #check if it is a function....
-	} elsif (makeFunction($line)) {	
-		$final .= makeFunction($line);
+	} elsif (makeFunction1($line)) {	
+		$final .= makeFunction1($line);
 
 #===else comment out things===
 	} else {	
@@ -261,7 +305,7 @@ sub makeLine
 	}
 	
 	$final =~ s/elif/elsif/;
-	print "vars is: @vars\n" if $debug or $print;
+	print "vars is: @vars\n" if $debug or $showVars;
 	#print "===End makeline===\n" if $debug;
 	
 	close F;
