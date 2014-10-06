@@ -96,7 +96,7 @@ else
 fi
 
 ./python2perl.pl examples/4/line_count.1.py > test_script.pl
-./test_script.pl <python2perl.pl >test1
+./test_script.pl < python2perl.pl >test1
 python examples/4/line_count.1.py <python2perl.pl >test2
 diff test1 test2
 if test "$?" -ne 0; then
@@ -104,6 +104,19 @@ if test "$?" -ne 0; then
 else 
 	echo "Passes line_count.1.py"
 fi
+
+./python2perl.pl examples/4/reverse_lines.0.py > test_script.pl
+./test_script.pl < python2perl.pl > test1
+python examples/4/reverse_lines.0.py < python2perl.pl > test2
+diff test1 test2
+if test "$?" -ne 0; then
+	echo "Test Failed!"
+else 
+	echo "Passes reverse_lines.0.py"
+fi
+
+
+
 
 
 

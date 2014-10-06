@@ -4,10 +4,9 @@
 
 import sys
 lines = []
-
-lines.append("first line\n")
-lines.append("second line\n")
-
+for line in sys.stdin:
+    lines.append("test")
+    
 i = len(lines) - 1
 while i >= 0:
     print lines[i],

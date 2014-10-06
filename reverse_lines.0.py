@@ -3,11 +3,11 @@
 # Count the number of lines on standard input.
 
 import sys
+line = "banana"
 lines = []
-
-lines.append("first line\n")
+lines.append("first line")
 lines.append("second line\n")
-
+    
 i = len(lines) - 1
 while i >= 0:
     print lines[i],

@@ -3,7 +3,16 @@
 # Count the number of lines on standard input.
 
 
-
-@lines = <STDIN>;
-$line_count = scalar(@lines);
-printf "%d lines\n" , $line_count;
+@lines = ();
+foreach $line (<STDIN>)
+{
+    chomp($line);
+    push @lines, $line;
+    
+}
+$i = scalar(@lines) - 1;
+while ($i >= 0)
+{
+    print $lines[$i], "\n";
+    $i = $i - 1;
+}

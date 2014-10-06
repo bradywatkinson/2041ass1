@@ -3,12 +3,7 @@
 # Count the number of lines on standard input.
 
 import sys
-lines = []
 
-lines.append("first line\n")
-lines.append("second line\n")
-
-i = len(lines) - 1
-while i >= 0:
-    print lines[i],
-    i = i - 1
+lines = sys.stdin.readlines()
+line_count = len(lines)
+print "%d lines" % line_count
